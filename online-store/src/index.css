@@ -1,0 +1,24 @@
+body {
+  margin: 0;
+  font-family: 'Raleway', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.container{
+  max-width: 1440px;
+  margin: 0 auto;
+  text-align: center;
+  background: #FFFFFF;
+}
+
+.active{
+  color: #5ECE7B;
+    border-bottom-style: solid;
+    border-color: #5ECE7B;
+  cursor: default;
+  text-decoration: none;
+}
+.categories .inactive {
+  text-decoration: "none" !important;
+  color: "black" !important;
+}
