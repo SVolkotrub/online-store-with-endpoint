@@ -1,18 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { gql, ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { GET_CURRENCY } from "../components/graphql/getCurrency";
 
 export const fetchCurrency = createAsyncThunk(
     "currency/fetchCurrency",
     async function (_, { rejectWithValue }) {
         try {
             const client = new ApolloClient({ uri: 'http://localhost:4000/', cache: new InMemoryCache(), });
-            const GET_CURRENCY = gql`
-             query Query {
-                currencies {
-                    label
-                    symbol
-                }
-            }`;
             const response = await client.query({ query: GET_CURRENCY }).then((result) => {
                 return result.data.currencies;
             }).catch((error) => { throw new Error("Something went wrong..."); });
@@ -28,12 +22,19 @@ export const currencySlice = createSlice({
     initialState: {
         currencies: [],
         currency: "$",
+        activeItem: 0,
+        currencyOpen: false,
         status: null,
         error: null,
     },
     reducers: {
         updateCurrency: (state, action) => {
-            state.currency = action.payload;  
+            state.currency = action.payload.currency; 
+            state.activeItem = action.payload.activeItem;
+            state.currencyOpen = action.payload.currencyOpen;
+        },
+        showCurrencyList: (state, action) => {
+            state.currencyOpen = action.payload;
         }
     },
     extraReducers: {
@@ -52,6 +53,6 @@ export const currencySlice = createSlice({
     }
 });
 
-export const { updateCurrency } = currencySlice.actions;
+export const { updateCurrency,showCurrencyList } = currencySlice.actions;
 
 export default currencySlice.reducer;

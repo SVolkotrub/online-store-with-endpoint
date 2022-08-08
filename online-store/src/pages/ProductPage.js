@@ -7,13 +7,26 @@ import { connect } from 'react-redux';
 import "./ProductPage.css";
 import { addProductToCart,changeProductQuantity } from "../store/cart";
 
+const TextOutOfStock = styled.p`
+    text-transform: uppercase;
+    position: absolute;
+    left: 25.42%;
+    right: 25.71%;
+    top: 200px;
+    display:  block;
+    font-weight: 400;
+    font-size: 36px;
+    line-height: 160%;
+    color: #8D8F9A;
+`;
 
 const FilterColor = styled.div`
     width: 32px;
     height: 32px;
     cursor: pointer;
-    background-color: ${props => props.color};
+    ${props => props.color === '#FFFFFF' ? `background-color: ${props.color}; outline-offset: -1px; outline: 1px solid black` : `background-color: ${props.color}`  };
     ${props => props.selected ? `outline-offset: 1px; outline: 1px solid #5ECE7B` : `none`};
+    
 `;
 
 function withParams(Component) {
@@ -48,7 +61,7 @@ class ProductPage extends PureComponent {
         })
     }
     async fetchData(props) {
-        let productRequest = await getProductById(this.props);
+        let productRequest = await getProductById(this.props.params);
         this.setState({ prices: productRequest.prices });
         this.getPrice();
         return  this.setState({ product: productRequest, gallery: productRequest.gallery, attributes: productRequest.attributes, loading: false });
@@ -111,10 +124,14 @@ class ProductPage extends PureComponent {
                 <div className="product-container">
                     <div className="small-image-wrapper">
                         {gallery.map((img, index) => {
-                                return <img className="small-image" src={img} key={`img_${index}`} alt="prod" onClick={() => {this.setState({toggleImage: index})}} />                            
+                                return <div key={`container_${index}`} className="small-image-container"><img className="small-image" src={img} key={`img_${index}`} alt="prod" onClick={() => {this.setState({toggleImage: index})}} /> </div>                           
                         })}
                     </div>
-                    <img className="big-image" src={gallery[toggleImage]} alt=""/>
+                    <div className="big-image-container">
+                        <img className="big-image" src={gallery[toggleImage]} alt="" />
+                        {!product.inStock && <TextOutOfStock >Out of Stock</TextOutOfStock>}
+                    </div>
+                    
                     <div className="content-block">
                         <p className="brand">{product.brand}</p>
                         <p className="name">{product.name} </p>
@@ -131,7 +148,7 @@ class ProductPage extends PureComponent {
                                                 
                                                 return (
                                                     <div key={`${index}_${item}`} className={this.state[attributeNameIndex] === index ? "attribute-item-selected" : "attribute-item"} 
-                                                        onClick={() => { this.setState({  [attributeNameIndex]: index }) }}><p key={index}>{item.value}</p></div>
+                                                        onClick={() => { this.setState({  [attributeNameIndex]: index }) }}><p key={`${index}_itemvalue`}>{item.value}</p></div>
                                                 );
                                             })}
                                         </div>
@@ -154,7 +171,7 @@ class ProductPage extends PureComponent {
                         })}                        
                         <p className="attribute-name">Price:</p>
                         <p className="price">{this.props.currency} {amount }</p>
-                        <button className="button-style" onClick={()=> this.addToCart(product) }>Add to cart</button>
+                        {product.inStock && (<button  className="button-style" onClick={()=> this.addToCart(product) }>Add to cart</button>)}
                         <p className="description"><Interweave content={product.description} /></p>
                     </div>
                 </div>
